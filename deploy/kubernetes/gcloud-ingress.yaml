@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: front-end-external
+  name: webapp
   namespace: sock-shop
   labels:
     name: front-end-external
@@ -12,10 +12,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - app.kube-practice.ru
+    - shop.paradox-server.ru
     secretName: kube-practice-app-tls
   rules:
-  - host: app.kube-practice.ru
+  - host: shop.paradox-server.ru
     http:
       paths:
       - pathType: Prefix
