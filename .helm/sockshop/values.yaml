@@ -1,0 +1,19 @@
+# Default values for sock-shop.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+catalogue:
+    image:
+        repo: weaveworksdemos/catalogue
+        tag: 0.3.5
+    containerPort: 80
+    resources:
+        limits:
+            cpu: 100m
+            memory: 100Mi
+        requests:
+            cpu: 100m
+            memory: 100Mi
+
+appSettings:
+    keyOne: "ValueOne"
