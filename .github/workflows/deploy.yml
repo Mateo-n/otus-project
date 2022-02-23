@@ -15,8 +15,7 @@ env:
 jobs:
   helm-chart:
     runs-on:
-      - self-hosted
-      - Linux
+      - ubuntu-latest
 
     container:
       image: quay.io/roboll/helmfile:v0.142.0
@@ -60,8 +59,7 @@ jobs:
   deploy-stage:
     needs: helm-chart
     runs-on:
-      - self-hosted
-      - Linux
+      - ubuntu-latest
 
     container:
       image: quay.io/roboll/helmfile:v0.142.0
