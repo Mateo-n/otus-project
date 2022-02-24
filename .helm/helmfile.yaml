@@ -1,0 +1,16 @@
+helmDefaults:
+  wait: true
+  atomic: true
+  timeout: 300
+
+environments:
+  stage:
+
+releases:
+  - name: sockshop-{{ .Environment.Name }}
+    namespace: sock-shop
+    version: {{ .Values.CHART_TAG }}
+    createNamespace: false
+    chart: sockshop
+    values:
+      - ./{{ .Environment.Name }}/values.yaml.gotmpl

@@ -1,10 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: webapp
-  namespace: sock-shop
+  name: graf
+  namespace: monitoring
   labels:
-    name: front-end-external
+    name: graf-frontend
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     kubernetes.io/ingress.class: "nginx"
@@ -12,16 +12,16 @@ metadata:
 spec:
   tls:
   - hosts:
-    - shop.paradox-server.ru
-    secretName: kube-practice-app-tls
+    - graf.paradox-server.ru
+    secretName: paradox-server-graf-tls
   rules:
-  - host: shop.paradox-server.ru
+  - host: graf.paradox-server.ru
     http:
       paths:
       - pathType: Prefix
         path: "/"
         backend:
           service:
-            name: front-end
-            port: 
+            name: grafana
+            port:
               number: 80

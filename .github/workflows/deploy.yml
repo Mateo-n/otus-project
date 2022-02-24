@@ -1,0 +1,64 @@
+name: .NET Core CI
+
+on:
+  push:
+    branches: [ CI ]
+  pull_request:
+    branches: [ CI ]
+
+defaults:
+  run:
+    working-directory: ./
+env:
+  DEFAULT_VERSION_CHART: 0.1.1
+
+jobs:
+  helm-chart:
+    runs-on:
+      - ubuntu-latest
+
+    container:
+      image: quay.io/roboll/helmfile:v0.142.0
+
+    env:
+      HELM_EXPERIMENTAL_OCI: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get short sha
+        uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 7
+
+      - name: Lint Helm chart
+        env:
+          SHORT_SHA: ${{ steps.short-sha.outputs.sha }}
+        run: |
+          APP=sockshop
+          echo "APP=${APP}" > $GITHUB_ENV
+          sed -i "s/version\:.*/version\: ${DEFAULT_VERSION_CHART}-${SHORT_SHA}/" .helm/${APP}/Chart.yaml
+          sed -i "s/appVersion\:.*/appVersion\: ${DEFAULT_VERSION_CHART}-${SHORT_SHA}/" .helm/${APP}/Chart.yaml
+          helm lint ./.helm/${APP}
+
+      - name: Push Helm chart
+        env:
+          SHORT_SHA: ${{ steps.short-sha.outputs.sha }}
+        run: |
+          helm package ./.helm/${APP}
+          ls
+#          rm ${APP}-${DEFAULT_VERSION_CHART}-${SHORT_SHA}.tgz
+
+      - name: deploy
+        env:
+          SHORT_SHA: ${{ steps.short-sha.outputs.sha }}
+        run: |
+          APP=sockshop
+          echo "APP=${APP}" > $GITHUB_ENV
+          echo ${{ secrets.KUBE_CONFIG_STAGE }} 
+          helmfile -f .helm/helmfile.yaml -e stage --state-values-set CHART_TAG=${DEFAULT_VERSION_CHART}-${SHORT_SHA} lint
+          echo ${{ secrets.KUBE_CONFIG_STAGE }} | base64 -d > ~/CONFIG
+          export KUBECONFIG=~/CONFIG
+          helmfile -f .helm/helmfile.yaml -e stage --state-values-set CHART_TAG=${DEFAULT_VERSION_CHART}-${SHORT_SHA} sync
